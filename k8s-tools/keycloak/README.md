@@ -21,6 +21,7 @@ helm upgrade —install keycloak —namespace keycloak bitnami/keycloak —reuse
 
 ```sh
 # Create file with Keycloak CA certificate
+# skip this step if Keycloak has a valid https certificate
 vi /etc/ssl/certs/keycloak-ca.crt
 # Edit kube-apiserver manifest
 vi /etc/kubernetes/manifests/kube-apiserver.yaml
@@ -30,6 +31,7 @@ vi /etc/kubernetes/manifests/kube-apiserver.yaml
 - —-oidc-client-id=kubernetes
 - —-oidc-username-claim=email
 - —-oidc-groups-claim=groups
+# skip this step if you don't need a custom Keycloak certificate
 - —-oidc-ca-file=/etc/ssl/certs/kevcloak-ca.crt
 ```
 
@@ -72,7 +74,7 @@ cat <<EOF > /etc/kubernetes/audit-policy/pods-audit-policy-yaml
 apiVersion: audit.k8s.io/v1
 kind: Policy rules:
    # Log pod changes at RequestResponse level
-   - level: RequestResponse 
+   - level: RequestResponse
    resources:
       - group:
          resources: ["pods"]
@@ -81,22 +83,22 @@ EOF
 vi /etc/kubernetes/manifests/kube-apiserver.yaml
 
 # Add below volumes configuration
-volumes: 
+volumes:
 - hostPath:
-    path: /etc/kubernetes/audit-policy 
+    path: /etc/kubernetes/audit-policy
     type: DirectoryOrCreate
-  name: audit-policy 
+  name: audit-policy
 - hostPath:
-    path: /var/log/audit 
+    path: /var/log/audit
     type: DirectoryOrCreate
   name: audit-logs
 
 # Add below volume mount configuration
 
 volumeMounts:
-- mountPath: /etc/kubernetes/audit-policy 
+- mountPath: /etc/kubernetes/audit-policy
   name: audit-policy
-- mountPath: /var/log/audit 
+- mountPath: /var/log/audit
   name: audit-logs
 
 # Add below extra args to kube-apiserver command
