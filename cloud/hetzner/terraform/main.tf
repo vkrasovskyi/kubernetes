@@ -2,9 +2,11 @@
 resource "hcloud_server" "jump-server" {
   name        = "jump-server"
   image       = "debian-12"
-  server_type = "cx11"
+  server_type = "cpx11"
   datacenter  = "hel1-dc2"
-  ssh_keys    = ["My SSH KEY"]
+  ssh_keys = [
+    hcloud_ssh_key.default.name
+  ]
   public_net  {
     ipv4_enabled = true
     ipv6_enabled = false
@@ -27,9 +29,12 @@ resource "hcloud_server" "kube-node" {
   count       = 3
   name        = "kube-node-${count.index + 1}"
   image       = "debian-12"
-  server_type = "cx21"
+  server_type = "cpx21"
   datacenter  = "hel1-dc2"
-  ssh_keys    = ["My SSH KEY", "JUMP SERVER SSH KEY"]
+  ssh_keys = [
+    hcloud_ssh_key.default.name,
+    hcloud_ssh_key.jump_server.name
+  ]
   public_net  {
     ipv4_enabled = true
     ipv6_enabled = false
